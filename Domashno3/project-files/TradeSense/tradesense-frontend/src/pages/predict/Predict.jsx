@@ -4,11 +4,15 @@ import bgImage from "../../assets/bg-images/technology-bgimage-2.png";
 import NavigationBar from "../../components/NavigationBar";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {useNavigate} from "react-router";
+import useStockCodes from "../../hooks/useStockCodes";
 
 function Predict() {
+    // state
     const [selectedValue, setSelectedValue] = useState('');
     const navigate = useNavigate();
+    const { stockCodes, error, loading } = useStockCodes();
 
+    // handlers
     const handleChange = (event) => {
         setSelectedValue(event.target.value);
     };
@@ -83,10 +87,11 @@ function Predict() {
                                 },
                             }}
                         >
-                            <MenuItem value="KMB">KMB</MenuItem>
-                            <MenuItem value="STB">STB</MenuItem>
-                            <MenuItem value="SKB">SKB</MenuItem>
-                            <MenuItem value="NLB">NLB</MenuItem>
+                            {loading && <MenuItem disabled>Loading...</MenuItem>}
+                            {error && <MenuItem disabled>Error loading data</MenuItem>}
+                            {stockCodes.map(code => (
+                                <MenuItem key={code} value={code}>{code}</MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                 </Box>
