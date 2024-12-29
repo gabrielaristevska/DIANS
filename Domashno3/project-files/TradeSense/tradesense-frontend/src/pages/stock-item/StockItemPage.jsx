@@ -24,12 +24,14 @@ import {
     XAxis,
     YAxis
 } from "recharts";
+import useSentiment from "../../hooks/useSentiment";
 
 function StockItemPage() {
     const { id } = useParams();
-    const { signals, error, loading } = useSignals(id);
+    const { signals, loading: signalsLoading, error: signalsError } = useSignals(id);
+    const { sentiment, loading: sentimentLoading, error: sentimentError } = useSentiment(id);
 
-    if (loading) {
+    if (signalsLoading || sentimentLoading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
                 <CircularProgress />
@@ -37,12 +39,12 @@ function StockItemPage() {
         );
     }
 
-    if (error) {
+    if (signalsError || sentimentError) {
         return (
             <Box>
                 <NavigationBar />
                 <Typography variant="h2" color="error">
-                    Error: {error}
+                    Error: {signalsError || sentimentError}
                 </Typography>
             </Box>
         );
@@ -114,6 +116,20 @@ function StockItemPage() {
                     </PieChart>
                 </Box>
 
+                {/* Fundamental analysis */}
+                <Box sx={{ mb: '32px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                    {sentiment && (
+                        <Typography variant="h2" sx={{ fontSize: '24px' }}>
+                            Based on our fundamental analysis of {id}, derived from historical news, we recommend that you{' '}
+                            <span style={{ color: "#2A6DBB", fontWeight: "600" }}>
+                                {sentiment.sentiment === 'positive' ? 'consider buying this stock.' : 'consider selling your stocks.'}
+                            </span>
+                        </Typography>
+                    )}
+                    {!sentiment && <Typography variant="h2" sx={{fontSize: '24px'}}>
+                        {`Our fundamental analysis of ${id} indicates that we couldn’t find sufficient historical news data to support our analysis.`}
+                    </Typography>}
+                </Box>
             </Box>
         </Box>
     );

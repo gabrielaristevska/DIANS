@@ -69,19 +69,30 @@ function NavigationBar() {
                         About
                     </NavLink>
                     <NavLink
-                        style={{
-                            textDecoration: 'none',
-                            textTransform: 'uppercase',
-                            color: '#2A6DBB',
-                            border: '2px solid #2A6DBB',
-                            borderRadius: '8px',
-                            fontSize: '16px',
-                            fontWeight: '500',
-                            padding: '8px 12px'
-                        }}
-                        to='/predict'
+                        to="/predict"
+                        style={{ textDecoration: 'none' }}
                     >
-                        Predict
+                        {({ isActive }) => (
+                            <Box
+                                sx={{
+                                    textTransform: 'uppercase',
+                                    color: isActive ? '#F4F4F4' : '#2A6DBB',
+                                    border: '2px solid #2A6DBB',
+                                    borderRadius: '8px',
+                                    fontSize: '16px',
+                                    fontWeight: '500',
+                                    padding: '8px 12px',
+                                    backgroundColor: isActive ? '#2A6DBB' : 'transparent',
+                                    transition: 'background-color 150ms ease-in, color 150ms ease-in',
+                                    '&:hover': {
+                                        backgroundColor: '#2A6DBB',
+                                        color: '#F4F4F4',
+                                    },
+                                }}
+                            >
+                                Predict
+                            </Box>
+                        )}
                     </NavLink>
                 </Box>
 

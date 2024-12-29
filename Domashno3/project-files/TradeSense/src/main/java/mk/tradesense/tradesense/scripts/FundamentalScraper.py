@@ -49,7 +49,7 @@ db_details = {
     "port": os.getenv("DB_PORT")
 }
 
-df = pd.DataFrame(columns=["Issuer", "Symbol", "News Content"])
+df = pd.DataFrame(columns=["issuer", "symbol", "news_content"])
 
 
 def get_issuer_data(issuer_url):
@@ -105,7 +105,7 @@ for issuer_url in issuers:
 
 driver.quit()
 
-df.rename(columns={'News Content': 'News_Content'}, inplace=True)
+df.rename(columns={'news_content': 'news_content'}, inplace=True)
 engine = create_engine(
     f'postgresql://{db_details["user"]}:{db_details["password"]}@{db_details["host"]}:{db_details["port"]}/{db_details["dbname"]}')
 df.to_sql('issuer_news', engine, if_exists='replace', index=False)

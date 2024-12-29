@@ -6,11 +6,17 @@ import PsychologyIcon from '@mui/icons-material/Psychology';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import {Link} from "react-router";
+import {Link, useNavigate} from "react-router";
 import previewImage from '../../assets/home-previewbox-images/MSEP Box.png'
 import bgImage from '../../assets/bg-images/technology-bgimage-2.png'
 
 function Home() {
+    const navigate = useNavigate();
+
+    const handlePredictClick = () => {
+        navigate("/predict");
+    }
+
     return (
         // Main Container
         <Box
@@ -32,6 +38,7 @@ function Home() {
                 <Typography variant="subtitle1" sx={{fontSize: '22px', color: '#929292', mb: '24px' }}>Use our AI model to predict the best time to buy/sell any stock item <br/> in the Macedonian stock exchange market</Typography>
                 <Button
                     variant="contained"
+                    onClick={handlePredictClick}
                     sx={{
                         width: '580px',
                         borderRadius: '32px',

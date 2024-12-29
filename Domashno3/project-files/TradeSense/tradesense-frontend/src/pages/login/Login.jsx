@@ -5,6 +5,7 @@ import bgImage from '../../assets/bg-images/technology-bgimage-1.png'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import axios from "axios";
 import {useAuth} from "../../context/AuthContext";
+import {Link} from "react-router";
 
 
 function Login() {
@@ -46,8 +47,12 @@ function Login() {
                 flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ width: '440px', margin: '0 auto', py: '64px', backgroundColor: "#F4F4F4", borderRadius: '16px', boxShadow: 3 }}
+                sx={{ width: '440px', margin: '0 auto', py: '64px', backgroundColor: "#F4F4F4", borderRadius: '16px', boxShadow: 3, position: 'relative' }}
             >
+                <Box sx={{ width: '72px', position: 'absolute', top: 16, right: 12}}>
+                    <Link to="/" style={{ color: '#2A6DBB', textDecoration: 'none', fontWeight: '600', textTransform: 'uppercase' }}>Home</Link>
+                </Box>
+
                 {/* LOGO BOX */}
                 <Box sx={{ width: '288px', mb: '16px' }}>
                     <img src={logo} alt="logo" style={{ margin: '0 auto' }}/>
@@ -116,10 +121,17 @@ function Login() {
                         </Button>
                         <Typography variant="subtitle1">
                             Don't have an account?
-                            <span style={{ color: '#2A6DBB', textDecoration: 'underline', position: 'relative', paddingLeft: 4 }}>
-                            Sign Up
-                            <ArrowForwardIcon sx={{ color: '#2A6DBB', position: 'absolute', pl: 1/2 }} />
-                        </span>
+                            <Link to="/register">
+                                <span style={{
+                                    color: '#2A6DBB',
+                                    textDecoration: 'underline',
+                                    position: 'relative',
+                                    paddingLeft: 4
+                                }}>
+                                    Sign Up
+                                    <ArrowForwardIcon sx={{color: '#2A6DBB', position: 'absolute', pl: 1 / 2}}/>
+                                </span>
+                            </Link>
                         </Typography>
                     </Box>
                 </Box>

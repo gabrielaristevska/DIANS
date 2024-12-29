@@ -1,6 +1,8 @@
 package mk.tradesense.tradesense.controller;
 
+import mk.tradesense.tradesense.model.Sentiment;
 import mk.tradesense.tradesense.model.Signal;
+import mk.tradesense.tradesense.repository.SentimentRepository;
 import mk.tradesense.tradesense.repository.SignalRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +14,11 @@ import java.util.List;
 @RequestMapping("/api/predictions")
 public class PredictionController {
     private final SignalRepository signalRepository;
+    private final SentimentRepository sentimentRepository;
 
-    public PredictionController(SignalRepository signalRepository) {
+    public PredictionController(SignalRepository signalRepository, SentimentRepository sentimentRepository) {
         this.signalRepository = signalRepository;
+        this.sentimentRepository = sentimentRepository;
     }
 
     @PostMapping("/technical-analysis")
@@ -48,5 +52,10 @@ public class PredictionController {
     @GetMapping("/signals")
     public List<Signal> getSignals(@RequestParam String stockCode) {
         return signalRepository.findSignalsByStockCode(stockCode);
+    }
+
+    @GetMapping("/sentiments/{stockCode}")
+    public Sentiment getSentiment(@PathVariable String stockCode) {
+        return sentimentRepository.findByStockCode(stockCode);
     }
 }
