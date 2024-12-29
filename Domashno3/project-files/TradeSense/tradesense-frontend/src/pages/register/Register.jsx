@@ -1,10 +1,30 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Box, Button, TextField, Typography} from "@mui/material";
 import bgImage from "../../assets/bg-images/technology-bgimage-1.png";
 import logo from "../../assets/logo/logo.png";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import {useNavigate} from "react-router";
+import axios from "axios";
 
 function Register() {
+    const [form, setForm] = useState({ username: '', email: '', password: '' });
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post('http://localhost:9090/auth/register', form);
+            alert('Registration successful');
+            navigate('/login');
+        } catch (error) {
+            alert('Registration failed');
+        }
+    };
+
     return (
         <Box
             display="flex"
@@ -61,9 +81,9 @@ function Register() {
                         alignItems="start"
                         gap='8px'
                     >
-                        <TextField id="username" label="Username" variant="outlined" sx={{ width: '100%' }} />
-                        <TextField id="email" label="Email" variant="outlined" sx={{ width: '100%' }} />
-                        <TextField id="password" label="Password" variant="outlined" sx={{ width: '100%' }} />
+                        <TextField name="username" label="Username" onChange={handleChange} variant="outlined" sx={{ width: '100%' }} />
+                        <TextField name="email" label="Email" onChange={handleChange} variant="outlined" sx={{ width: '100%' }} />
+                        <TextField name="password" label="Password" onChange={handleChange} type="password" variant="outlined" sx={{ width: '100%' }} />
                     </Box>
 
                     {/* Submit BTN */}
@@ -73,7 +93,7 @@ function Register() {
                         alignItems="start"
                         gap='16px'
                     >
-                        <Button variant="contained" sx={{ width: '100%'}}>
+                        <Button variant="contained" onClick={handleSubmit} sx={{ width: '100%'}}>
                             Continue
                         </Button>
                         <Typography variant="subtitle1">

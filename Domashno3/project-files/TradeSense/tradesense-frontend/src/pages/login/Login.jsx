@@ -1,11 +1,31 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Box, Button, TextField, Typography} from "@mui/material";
 import logo from '../../assets/logo/logo.png'
 import bgImage from '../../assets/bg-images/technology-bgimage-1.png'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import axios from "axios";
+import {useAuth} from "../../context/AuthContext";
 
 
 function Login() {
+    const [form, setForm] = useState({ username: '', password: '' });
+    const { login } = useAuth();
+
+    const handleChange = (e) => {
+        setForm(prev => ({...prev, [e.target.name]: e.target.value}));
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const res = await axios.post("http://localhost:9090/auth/login", form);
+            login(res.data.jwtToken, res.data.username);
+        } catch (error) {
+            alert("Login failed!");
+        }
+    }
+
     return (
         <Box
             display="flex"
@@ -62,8 +82,23 @@ function Login() {
                         alignItems="start"
                         gap='8px'
                     >
-                        <TextField id="email" label="Email" variant="outlined" sx={{ width: '100%' }} />
-                        <TextField id="password" label="Password" variant="outlined" sx={{ width: '100%' }} />
+                        <TextField
+                            name="username"
+                            onChange={e => handleChange(e)}
+                            // value={form.username}
+                            label="Username"
+                            variant="outlined"
+                            sx={{ width: '100%' }}
+                        />
+                        <TextField
+                            name="password"
+                            onChange={e => handleChange(e)}
+                            type="password"
+                            // value={form.password}
+                            label="Password"
+                            variant="outlined"
+                            sx={{ width: '100%' }}
+                        />
                         <Typography variant="subtitle2" sx={{mt: '4px', fontWeight: '600', color: '#2A6DBB'}}>
                             Forgot Password?
                         </Typography>
@@ -76,7 +111,7 @@ function Login() {
                         alignItems="start"
                         gap='16px'
                     >
-                        <Button variant="contained" sx={{ width: '100%'}}>
+                        <Button onClick={handleSubmit} variant="contained" sx={{ width: '100%'}}>
                             Continue
                         </Button>
                         <Typography variant="subtitle1">

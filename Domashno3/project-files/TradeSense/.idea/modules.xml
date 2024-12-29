@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/TradeSense.iml" filepath="$PROJECT_DIR$/.idea/TradeSense.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tradesense.iml" filepath="$PROJECT_DIR$/tradesense.iml" />
     </modules>
   </component>
 </project>

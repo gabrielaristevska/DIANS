@@ -1,10 +1,19 @@
 import React from 'react';
 import logo from '../assets/logo/nav-logo.png'
-import {Box} from "@mui/material";
+import {Box, Button, Typography} from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import {NavLink} from "react-router";
+import {NavLink, useNavigate} from "react-router";
+import {useAuth} from "../context/AuthContext";
 
 function NavigationBar() {
+    const { logout, isAuthenticated, username } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    }
+
     return (
         // Main container
         <Box
@@ -77,8 +86,36 @@ function NavigationBar() {
                 </Box>
 
                 {/* Account Icon Box */}
-                <Box>
-                    <AccountCircleIcon sx={{ fontSize: '48px', color: '#F4F4F4' }} />
+                <Box display="flex" alignItems="center" gap="12px">
+                    {isAuthenticated() ? (
+                        <>
+                            <Button
+                                onClick={handleLogout}
+                                variant="contained"
+                                sx={{
+                                    textTransform: 'uppercase',
+                                    fontWeight: '500',
+                                    backgroundColor: '#2A6DBB',
+                                    '&:hover': { backgroundColor: '#1E5A9A' }
+                                }}
+                            >
+                                Logout
+                            </Button>
+                        </>
+                    ) : (
+                        <NavLink
+                            to="/login"
+                            style={{
+                                textDecoration: 'none',
+                                textTransform: 'uppercase',
+                                color: '#F4F4F4',
+                                fontSize: '16px',
+                                fontWeight: '500'
+                            }}
+                        >
+                            Sign In
+                        </NavLink>
+                    )}
                 </Box>
             </Box>
         </Box>

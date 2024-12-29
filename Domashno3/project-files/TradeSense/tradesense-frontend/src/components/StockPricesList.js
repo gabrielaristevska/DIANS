@@ -6,7 +6,7 @@ function StockPricesList(props) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get('/api/stock-prices')
+        axios.get('/api/stock-items')
             .then(response => {
                 setStockPrices(response.data);
                 setLoading(false);

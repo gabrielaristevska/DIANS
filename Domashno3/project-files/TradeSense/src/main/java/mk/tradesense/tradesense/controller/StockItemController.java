@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/stock-prices")
+@RequestMapping("/api/stock-items")
 public class StockItemController {
 
     private final StockItemRepository stockItemRepository;
@@ -45,7 +45,7 @@ public class StockItemController {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     @GetMapping("/codes")
     public ResponseEntity<List<String>> getAllStockCodes() {
         List<String> stockCodes = stockItemRepository.findDistinctStockCodes();
