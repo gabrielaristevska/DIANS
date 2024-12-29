@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import ta
 from sqlalchemy import create_engine
-
+import sys
 
 load_dotenv()
 
@@ -16,10 +16,10 @@ DB_PORT = os.getenv("DB_PORT")
 
 engine = create_engine(f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}')
 
-issuer_code = 'KMB'
+issuer_code = sys.argv[1]
 query = f"""
 SELECT stock_code, date, last_price, max_price, min_price, quantity, total_turnover
-FROM stock_prices_final
+FROM stock_items
 WHERE stock_code = '{issuer_code}'
 """
 
@@ -127,7 +127,7 @@ def generate_signals(data, windows, required_margin=1.2):
 
 
 def save_signals_to_db(data):
-    signals_data = data[['stock_code', 'date', 'signal']]
+    signals_data = data[['stock_code', 'date', 'signal', 'last_price']]
     signals_data.to_sql('signals', engine, if_exists='replace', index=False)
 
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Typography} from "@mui/material";
+import {Box, CircularProgress, Typography} from "@mui/material";
 import NavigationBar from "../../components/NavigationBar";
 import {useParams} from "react-router";
 import InsertChartIcon from '@mui/icons-material/InsertChart';
@@ -9,9 +9,61 @@ import graph1 from '../../assets/stock-item-graphs/g1.png'
 import graph2 from '../../assets/stock-item-graphs/g2.png'
 import graph3 from '../../assets/stock-item-graphs/g3.png'
 import graph4 from '../../assets/stock-item-graphs/g4.png'
+import useSignals from "../../hooks/useSignals";
+import {
+    CartesianGrid,
+    Cell,
+    Legend,
+    Line,
+    LineChart,
+    Pie,
+    PieChart, ResponsiveContainer,
+    Scatter,
+    ScatterChart,
+    Tooltip,
+    XAxis,
+    YAxis
+} from "recharts";
 
 function StockItemPage() {
     const { id } = useParams();
+    const { signals, error, loading } = useSignals(id);
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box>
+                <NavigationBar />
+                <Typography variant="h2" color="error">
+                    Error: {error}
+                </Typography>
+            </Box>
+        );
+    }
+
+    // Process data
+    const processedData = signals.map(({ date, signal, lastPrice }) => ({
+        date: new Date(date).toLocaleDateString(),
+        signal,
+        lastPrice,
+        buySignal: signal === "Buy" ? lastPrice : null,
+        sellSignal: signal === "Sell" ? lastPrice : null,
+    }));
+
+    const pieData = [
+        { name: "Buy", value: signals.filter(({ signal }) => signal === "Buy").length },
+        { name: "Sell", value: signals.filter(({ signal }) => signal === "Sell").length },
+        { name: "Hold", value: signals.filter(({ signal }) => signal === "Hold").length },
+    ];
+
+    const COLORS = ["#00C49F", "#FF8042", "#FFBB28"];
 
     return (
         // Main container
@@ -23,122 +75,45 @@ function StockItemPage() {
         >
             <NavigationBar/>
             {/* Landing Content */}
-            <Box sx={{ width: '980px', margin: '80px auto 0' }}>
+            <Box sx={{ width: '980px', margin: '80px auto 64px' }}>
                 <Typography variant="h1" sx={{fontSize: '72px', color: '#272727', mb: '16px' }}>Prediction Results for: <span style={{ color: '#2A6DBB' }}>{id}</span></Typography>
             </Box>
 
+
             {/* Main Content */}
             <Box>
-                {/* First Part */}
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    gap="24px"
-                    sx={{
-                        width: '1180px',
-                        margin: '64px auto 0'
-                    }}
-                >
-                    <Box
-                        sx={{
-                            width: '256px',
-                            backgroundColor: '#272727',
-                            p: '16px',
-                            borderRadius: '12px',
-                            textAlign: 'left'
-                        }}
-                    >
-                        <InsertChartIcon sx={{ fontSize: '42px', color: '#F4F4F4', mb: '12px'}} />
-                        <Typography variant="h2" sx={{ fontSize: '24px', color: '#F4F4F4', mb: '12px' }} >Last week average</Typography>
-                        <Typography variant="subtitle1" sx={{ fontSize: '16px', color: '#F4F4F4' }} >24,969.00</Typography>
-                    </Box>
-
-                    <Box
-                        sx={{
-                            width: '256px',
-                            backgroundColor: '#272727',
-                            p: '16px',
-                            borderRadius: '12px',
-                            textAlign: 'left'
-                        }}
-                    >
-                        <InsertChartIcon sx={{ fontSize: '42px', color: '#F4F4F4', mb: '12px'}} />
-                        <Typography variant="h2" sx={{ fontSize: '24px', color: '#F4F4F4', mb: '12px' }} >Last month average</Typography>
-                        <Typography variant="subtitle1" sx={{ fontSize: '16px', color: '#F4F4F4' }} >24,969.00</Typography>
-                    </Box>
-
-                    <Box
-                        sx={{
-                            width: '256px',
-                            backgroundColor: '#272727',
-                            p: '16px',
-                            borderRadius: '12px',
-                            textAlign: 'left'
-                        }}
-                    >
-                        <InsertChartIcon sx={{ fontSize: '42px', color: '#F4F4F4', mb: '12px'}} />
-                        <Typography variant="h2" sx={{ fontSize: '24px', color: '#F4F4F4', mb: '12px' }} >Last year average</Typography>
-                        <Typography variant="subtitle1" sx={{ fontSize: '16px', color: '#F4F4F4' }} >24,969.00</Typography>
-                    </Box>
+                {/* LineChart */}
+                <Box sx={{ mb: '48px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+                    <Typography variant="h2" sx={{ fontSize: '24px', mb: '16px' }}>
+                        Stock Price and Signals Over Time
+                    </Typography>
+                    <LineChart width={900} height={400} data={processedData}>
+                        <CartesianGrid stroke="#ccc" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="lastPrice" stroke="blue" name="Last Price" />
+                        <Scatter dataKey="buySignal" fill="green" name="Buy Signal" />
+                        <Scatter dataKey="sellSignal" fill="red" name="Sell Signal" />
+                    </LineChart>
                 </Box>
 
-                {/* Second Part */}
-                <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    gap="32px"
-                >
-                    <img src={graph1} alt="graph 1" style={{ width: '50%' }} />
-                    <img src={graph2} alt="graph 2" style={{ width: '50%' }} />
+                {/* PieChart */}
+                <Box sx={{ mb: '32px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                    <Typography variant="h2" sx={{ fontSize: '24px' }}>
+                        Signal Distribution
+                    </Typography>
+                    <PieChart width={400} height={400}>
+                        <Pie data={pieData} cx={200} cy={200} outerRadius={150} fill="#8884d8" dataKey="value" label>
+                            {pieData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Legend />
+                    </PieChart>
                 </Box>
 
-                {/* Third Part */}
-                <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    gap="32px"
-                    sx={{mt: '32px'}}
-                >
-                    <Box
-                        display="flex"
-                        gap="16px"
-                    >
-                        <Box
-                            sx={{
-                                width: '180px',
-                                backgroundColor: '#272727',
-                                p: '16px',
-                                borderRadius: '12px',
-                                textAlign: 'left'
-                            }}
-                        >
-                            <TrendingUpIcon sx={{ fontSize: '42px', color: '#F4F4F4', mb: '12px'}} />
-                            <Typography variant="h2" sx={{ fontSize: '24px', color: '#F4F4F4', mb: '12px' }} >When to sell</Typography>
-                        </Box>
-                        <img src={graph3} alt="up chart"/>
-                    </Box>
-
-                    <Box
-                        display="flex"
-                        gap="16px"
-                    >
-                        <Box
-                            sx={{
-                                width: '180px',
-                                backgroundColor: '#272727',
-                                p: '16px',
-                                borderRadius: '12px',
-                                textAlign: 'left'
-                            }}
-                        >
-                            <TrendingDownIcon sx={{ fontSize: '42px', color: '#F4F4F4', mb: '12px'}} />
-                            <Typography variant="h2" sx={{ fontSize: '24px', color: '#F4F4F4', mb: '12px' }} >When to buy</Typography>
-                        </Box>
-                        <img src={graph4} alt="down chart"/>
-                    </Box>
-                </Box>
             </Box>
         </Box>
     );

@@ -1,24 +1,40 @@
 import React, {useState} from 'react';
-import {Box, Button, FormControl, InputLabel, MenuItem, Select, Typography} from "@mui/material";
+import {Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Typography} from "@mui/material";
 import bgImage from "../../assets/bg-images/technology-bgimage-2.png";
 import NavigationBar from "../../components/NavigationBar";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {useNavigate} from "react-router";
 import useStockCodes from "../../hooks/useStockCodes";
+import axios from "axios";
+import {useAuth} from "../../context/AuthContext";
 
 function Predict() {
     // state
     const [selectedValue, setSelectedValue] = useState('');
+    const [loadingScript, setLoadingScript] = useState(false);
     const navigate = useNavigate();
     const { stockCodes, error, loading } = useStockCodes();
+    const { authToken } = useAuth();
 
     // handlers
     const handleChange = (event) => {
         setSelectedValue(event.target.value);
     };
 
-    const handleClick = (event) => {
-        navigate(`stock-item/${selectedValue}`);
+    const handleClick = async () => {
+        setLoadingScript(true);
+        try {
+            await axios.post(`http://localhost:9090/api/predictions/technical-analysis?stockCode=${selectedValue}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`, // Add JWT to Authorization header
+                },
+            });
+            navigate(`stock-item/${selectedValue}`);
+        } catch (error) {
+            alert("Error during prediction. Try again.");
+        } finally {
+            setLoadingScript(false);
+        }
     }
 
     return (
@@ -110,14 +126,20 @@ function Predict() {
                     <Button
                         variant="contained"
                         onClick={handleClick}
+                        disabled={loadingScript}
                         sx={{
                             width: '100%',
                             borderRadius: '32px',
                             py: '16px',
                         }}
                     >
-                        Start Prediction
-                        <ArrowForwardIcon />
+                        {loadingScript ? (
+                            <CircularProgress size={24} />
+                        ) : (
+                            <span>
+                                Start Prediction <ArrowForwardIcon />
+                            </span>
+                        )}
                     </Button>
                 </Box>
             </Box>
