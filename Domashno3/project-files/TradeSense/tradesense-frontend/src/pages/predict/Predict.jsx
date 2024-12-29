@@ -136,9 +136,9 @@ function Predict() {
                         {loadingScript ? (
                             <CircularProgress size={24} />
                         ) : (
-                            <span>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 Start Prediction <ArrowForwardIcon />
-                            </span>
+                            </Box>
                         )}
                     </Button>
                 </Box>
