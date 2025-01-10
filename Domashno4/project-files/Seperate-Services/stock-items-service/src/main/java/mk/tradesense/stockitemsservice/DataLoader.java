@@ -12,6 +12,7 @@ public class DataLoader {
     public void init() {
         try {
             // Retrieve the Python path from environment variables
+            // A python path needs to be set as an environment variable for this to work properly.
             String pythonPath = System.getenv("PYTHON_PATH");
             if (pythonPath == null) {
                 throw new IllegalStateException("PYTHON_PATH environment variable is not set");
