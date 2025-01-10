@@ -1,0 +1,62 @@
+package mk.tradesense.predictionservice.controller;
+
+
+import mk.tradesense.predictionservice.model.Sentiment;
+import mk.tradesense.predictionservice.model.Signal;
+import mk.tradesense.predictionservice.repository.SentimentRepository;
+import mk.tradesense.predictionservice.repository.SignalRepository;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/predictions")
+public class PredictionController {
+    private final SignalRepository signalRepository;
+    private final SentimentRepository sentimentRepository;
+
+    public PredictionController(SignalRepository signalRepository, SentimentRepository sentimentRepository) {
+        this.signalRepository = signalRepository;
+        this.sentimentRepository = sentimentRepository;
+    }
+
+    @PostMapping("/technical-analysis")
+    public String runTechnicalAnalysis(@RequestParam String stockCode) {
+        // Retrieve the Python path from environment variables
+        String pythonPath = System.getenv("PYTHON_PATH");
+        if (pythonPath == null) {
+            throw new IllegalStateException("PYTHON_PATH environment variable is not set");
+        }
+
+        try {
+            Process process = new ProcessBuilder(pythonPath, "src/main/java/mk/tradesense/tradesense/scripts/technical.py", stockCode).start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+
+            process.waitFor();
+
+            return "Technical analysis completed: " + output.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error executing technical analysis: " + e.getMessage();
+        }
+    }
+
+    @GetMapping("/signals")
+    public List<Signal> getSignals(@RequestParam String stockCode) {
+        return signalRepository.findSignalsByStockCode(stockCode);
+    }
+
+    @GetMapping("/sentiments/{stockCode}")
+    public Sentiment getSentiment(@PathVariable String stockCode) {
+        return sentimentRepository.findByStockCode(stockCode);
+    }
+}
