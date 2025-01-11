@@ -9,6 +9,7 @@ import mk.tradesense.authservice.jwt.JwtUtils;
 import mk.tradesense.authservice.model.UserEntity;
 import mk.tradesense.authservice.model.enumerations.Role;
 import mk.tradesense.authservice.repository.UserRepository;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,10 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,9 +92,29 @@ public class AuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    // Logout user
-//    @PostMapping("/logout")
-//    public ResponseEntity<?> logoutUser(HttpServletRequest request) {
-//
-//    }
+    // Validate token through gateway
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateUser(@RequestHeader("Authorization") String token) {
+        System.out.println("Received validate request: " + token);
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
+        }
+
+        try {
+            String jwt = token.substring(7); // Remove "Bearer "
+            boolean isValid = jwtUtils.validateToken(jwt);
+            if (!isValid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
+            }
+
+            String username = jwtUtils.getUsernameFromToken(jwt);
+            return ResponseEntity.ok(Map.of(
+                    "username", username
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
+        }
+    }
+
+
 }
