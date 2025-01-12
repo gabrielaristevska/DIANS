@@ -1,0 +1,92 @@
+version: "3.9"
+services:
+  gateway-service:
+    build:
+      context: ./gateway-service
+    ports:
+      - "9090:9090" # Gateway exposed on port 9090
+    depends_on:
+      - auth-service
+      - stock-items-service
+      - prediction-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - JWT_SECRET=thisisalongpasswordforthejwttokenauthenticationyouarefreetoenter
+
+  auth-service:
+    build:
+      context: ./auth-service
+    ports:
+      - "9091:9091" # Auth service exposed on port 9091
+    depends_on:
+      - auth-db
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - JWT_SECRET_KEY=thisisalongpasswordforthejwttokenauthenticationyouarefreetoenter
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/tradesense-auth-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=zdravo
+
+  stock-items-service:
+    build:
+      context: ./stock-items-service
+    ports:
+      - "9093:9093" # Stock-items service exposed on port 9093
+    depends_on:
+      - stock-items-db
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stock-items-db:5432/tradesense-stock-items-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=zdravo
+      - PYTHON_PATH=/usr/bin/python3
+
+  prediction-service:
+    build:
+      context: ./prediction-service
+    ports:
+      - "9092:9092" # Prediction service exposed on port 9092
+    depends_on:
+      - stock-items-db
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stock-items-db:5432/tradesense-stock-items-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=zdravo
+      - PYTHON_PATH=/usr/bin/python3
+
+  frontend-service:
+    build:
+      context: ./frontend-service
+    ports:
+      - "3000:80" # Frontend exposed on port 3000
+    environment:
+      - REACT_APP_API_URL=http://localhost:9090 # Gateway URL
+
+  auth-db:
+    image: postgres:latest
+    container_name: auth-db
+    ports:
+      - "5434:5432" # Expose Auth DB
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: zdravo
+      POSTGRES_DB: tradesense-auth-service
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+
+  stock-items-db:
+    image: postgres:latest
+    container_name: stock-items-db
+    ports:
+      - "5433:5432" # Expose Stock Items DB
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: zdravo
+      POSTGRES_DB: tradesense-stock-items-service
+    volumes:
+      - stock-items-db-data:/var/lib/postgresql/data
+
+volumes:
+  auth-db-data:
+  stock-items-db-data:

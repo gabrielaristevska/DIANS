@@ -31,7 +31,7 @@ public class PredictionController {
         }
 
         try {
-            Process process = new ProcessBuilder(pythonPath, "src/main/java/mk/tradesense/tradesense/scripts/technical.py", stockCode).start();
+            Process process = new ProcessBuilder(pythonPath, "src/main/java/mk/tradesense/predictionservice/scripts/technical.py", stockCode).start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder output = new StringBuilder();
             String line;
